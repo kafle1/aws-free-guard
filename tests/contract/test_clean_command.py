@@ -25,12 +25,10 @@ def test_clean_command_contract():
 
     # Validate request against schema
     try:
-        validate(instance=sample_request, schema=schema["properties"]["command"])
-        # If we get here, the schema is valid, but we expect failure since no implementation
-        assert False, "Test should fail until clean command is implemented"
-    except ValidationError:
-        # Expected to fail initially
-        pass
+        validate(instance=sample_request, schema=schema)
+        # Schema validation passed
+    except ValidationError as e:
+        pytest.fail(f"Schema validation failed: {e}")
     except Exception as e:
         # Unexpected error
         pytest.fail(f"Unexpected error: {e}")
