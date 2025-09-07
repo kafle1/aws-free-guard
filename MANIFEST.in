@@ -1,0 +1,14 @@
+include README.md
+include LICENSE
+include CONTRIBUTING.md
+include requirements.txt
+include run-aws-free-guard.sh
+recursive-include specs *.json
+recursive-include specs *.md
+recursive-include templates *.md
+recursive-include memory *.md
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude .env

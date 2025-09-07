@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Clean Command Contract",
+  "description": "Contract for the 'clean' command to reset AWS account to like-new state",
+  "type": "object",
+  "properties": {
+    "command": {
+      "type": "string",
+      "enum": ["clean"],
+      "description": "The command name"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "AWS region to operate in (optional, defaults to configured region)"
+        },
+        "dry-run": {
+          "type": "boolean",
+          "description": "Preview deletions without applying them",
+          "default": false
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific services to clean (optional, defaults to all)"
+        },
+        "confirm": {
+          "type": "boolean",
+          "description": "Skip confirmation prompt",
+          "default": false
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "deleted_resources": {
+          "type": "integer"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["success", "message"]
+    }
+  },
+  "required": ["command"]
+}

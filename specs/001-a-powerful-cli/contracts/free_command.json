@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Free Command Contract",
+  "description": "Contract for the 'free' command to enforce AWS free tier limits",
+  "type": "object",
+  "properties": {
+    "command": {
+      "type": "string",
+      "enum": ["free"],
+      "description": "The command name"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "AWS region to operate in (optional, defaults to configured region)"
+        },
+        "dry-run": {
+          "type": "boolean",
+          "description": "Preview changes without applying them",
+          "default": false
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific services to check (optional, defaults to all)"
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "analyzed_resources": {
+          "type": "integer"
+        },
+        "enforced_resources": {
+          "type": "integer"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["success", "message"]
+    }
+  },
+  "required": ["command"]
+}
