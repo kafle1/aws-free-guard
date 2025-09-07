@@ -2,6 +2,7 @@ name: CI
 
 # CI workflow for AWS Free Guard
 # Tests across Python 3.9-3.12 matrix
+# Updated to fix contract test schema validation
 
 on:
   push:
