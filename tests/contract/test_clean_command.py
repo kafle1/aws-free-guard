@@ -1,6 +1,7 @@
 """Contract tests for the clean command."""
 
 import json
+import os
 import pytest
 from jsonschema import validate, ValidationError
 
@@ -8,7 +9,8 @@ from jsonschema import validate, ValidationError
 def test_clean_command_contract():
     """Test that the clean command adheres to its contract schema."""
     # Load the contract schema
-    with open("specs/001-a-powerful-cli/contracts/clean_command.json", "r") as f:
+    contract_path = os.path.join(os.path.dirname(__file__), "../../specs/001-a-powerful-cli/contracts/clean_command.json")
+    with open(contract_path, "r") as f:
         schema = json.load(f)
 
     # This is a placeholder test that will fail until implementation

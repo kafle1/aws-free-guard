@@ -1,6 +1,7 @@
 """Contract tests for the free command."""
 
 import json
+import os
 import pytest
 from jsonschema import validate, ValidationError
 from click.testing import CliRunner
@@ -17,7 +18,8 @@ def runner():
 def test_free_command_contract():
     """Test that the free command adheres to its contract schema."""
     # Load the contract schema
-    with open("specs/001-a-powerful-cli/contracts/free_command.json", "r") as f:
+    contract_path = os.path.join(os.path.dirname(__file__), "../../specs/001-a-powerful-cli/contracts/free_command.json")
+    with open(contract_path, "r") as f:
         schema = json.load(f)
 
     # Test the command structure
@@ -51,7 +53,8 @@ def test_free_command_execution(runner):
 def test_free_command_response_structure():
     """Test that free command response structure matches contract."""
     # Load the contract schema
-    with open("specs/001-a-powerful-cli/contracts/free_command.json", "r") as f:
+    contract_path = os.path.join(os.path.dirname(__file__), "../../specs/001-a-powerful-cli/contracts/free_command.json")
+    with open(contract_path, "r") as f:
         schema = json.load(f)
 
     # Test expected response structure

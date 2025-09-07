@@ -1,18 +1,13 @@
 """CLI commands for AWS Free Guard."""
 
 import json
-import time
-from typing import List, Optional
 import click
 from rich.console import Console
 from rich.table import Table
-from rich.panel import Panel
-from rich.text import Text
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Confirm
 
 from src.models.aws_account import AWSAccount
-from src.models.operation_result import OperationResult
 from src.lib.aws_free import AWSFreeEnforcer
 from src.lib.aws_clean import AWSCleaner
 
@@ -32,17 +27,21 @@ def cli(ctx, profile, region):
 @click.pass_context
 @click.option('--services', multiple=True, help='Specific services to analyze (default: all)')
 @click.option('--all-regions', is_flag=True, help='Analyze all regions (default: current region only)')
-@click.option('--output', type=click.Choice(['table', 'json', 'summary']), default='table', help='Output format')
+@click.option('--output', type=click.Choice(['table', 'json', 'summary']),
+              default='table', help='Output format')
 @click.option('--detailed', is_flag=True, help='Show detailed analysis')
 @click.option('--dry-run', is_flag=True, help='Preview changes without applying them')
 def free(ctx, services, all_regions, output, detailed, dry_run):
     """Analyze AWS account and enforce free tier limits."""
     try:
-        with console.status("[bold green]Initializing AWS Free Guard...", spinner="dots"):
-            account = AWSAccount(profile_name=ctx.obj['profile'], region=ctx.obj['region'])
+        with console.status("[bold green]Initializing AWS Free Guard...",
+                           spinner="dots"):
+            account = AWSAccount(profile_name=ctx.obj['profile'],
+                               region=ctx.obj['region'])
             enforcer = AWSFreeEnforcer(account)
 
-        console.print("[bold blue]🔍 Starting comprehensive AWS analysis...[/bold blue]")
+        console.print("[bold blue]🔍 Starting comprehensive AWS analysis..."
+                      "[/bold blue]")
 
         # Perform comprehensive analysis
         with Progress(
@@ -67,7 +66,8 @@ def free(ctx, services, all_regions, output, detailed, dry_run):
 
         # Display results based on output format
         if output == 'json':
-            console.print_json(json.dumps(analysis_results, indent=2, default=str))
+            console.print_json(json.dumps(analysis_results, indent=2,
+                                        default=str))
         elif output == 'summary':
             _display_summary(analysis_results)
         else:
@@ -82,21 +82,30 @@ def free(ctx, services, all_regions, output, detailed, dry_run):
         # Risk assessment
         risk = analysis_results.get('risk_assessment', {})
         if risk.get('overall_risk') == 'HIGH':
-            console.print(f"\n[bold red]⚠️  HIGH RISK: {', '.join(risk.get('risk_factors', []))}[/bold red]")
+            console.print(f"\n[bold red]⚠️  HIGH RISK: "
+                         f"{', '.join(risk.get('risk_factors', []))}"
+                         f"[/bold red]")
         elif risk.get('overall_risk') == 'MEDIUM':
-            console.print(f"\n[bold yellow]⚠️  MEDIUM RISK: {', '.join(risk.get('risk_factors', []))}[/bold yellow]")
+            console.print(f"\n[bold yellow]⚠️  MEDIUM RISK: "
+                         f"{', '.join(risk.get('risk_factors', []))}"
+                         f"[/bold yellow]")
         else:
-            console.print(f"\n[bold green]✅ LOW RISK - Account appears safe[/bold green]")
+            console.print("\n[bold green]✅ LOW RISK - Account appears safe"
+                         "[/bold green]")
 
         # Cost analysis
         cost_analysis = analysis_results.get('cost_analysis', {})
         if cost_analysis.get('total_monthly_cost', 0) > 0:
-            console.print(f"\n[bold cyan]💰 Current Monthly Cost: ${cost_analysis['total_monthly_cost']:.2f}[/bold cyan]")
+            console.print(f"\n[bold cyan]💰 Current Monthly Cost: "
+                         f"${cost_analysis['total_monthly_cost']:.2f}"
+                         f"[/bold cyan]")
 
         # Predictions
         predictions = analysis_results.get('predictions', {})
         if predictions.get('next_month_prediction', 0) > 0:
-            console.print(f"\n[bold magenta]🔮 Predicted Next Month: ${predictions['next_month_prediction']:.2f}[/bold magenta]")
+            console.print(f"\n[bold magenta]🔮 Predicted Next Month: "
+                         f"${predictions['next_month_prediction']:.2f}"
+                         f"[/bold magenta]")
 
     except Exception as e:
         console.print(f"[bold red]❌ Error: {str(e)}[/bold red]")
@@ -104,20 +113,26 @@ def free(ctx, services, all_regions, output, detailed, dry_run):
 
 @cli.command()
 @click.pass_context
-@click.option('--services', multiple=True, help='Specific services to clean (default: all)')
-@click.option('--all-regions', is_flag=True, help='Clean all regions (default: current region only)')
-@click.option('--dry-run', is_flag=True, help='Show what would be cleaned without actually doing it')
+@click.option('--services', multiple=True,
+              help='Specific services to clean (default: all)')
+@click.option('--all-regions', is_flag=True,
+              help='Clean all regions (default: current region only)')
+@click.option('--dry-run', is_flag=True,
+              help='Show what would be cleaned without actually doing it')
 @click.option('--force', is_flag=True, help='Skip confirmation prompts')
 @click.option('--confirm', is_flag=True, help='Automatically confirm the operation')
 def clean(ctx, services, all_regions, dry_run, force, confirm):
     """Clean AWS account by removing unused resources."""
     try:
-        with console.status("[bold green]Initializing AWS Cleaner...", spinner="dots"):
-            account = AWSAccount(profile_name=ctx.obj['profile'], region=ctx.obj['region'])
+        with console.status("[bold green]Initializing AWS Cleaner...",
+                           spinner="dots"):
+            account = AWSAccount(profile_name=ctx.obj['profile'],
+                               region=ctx.obj['region'])
             cleaner = AWSCleaner(account)
 
         if not force and not dry_run and not confirm:
-            if not Confirm.ask("⚠️  This will delete resources from your AWS account. Continue?"):
+            if not Confirm.ask("⚠️  This will delete resources from your AWS "
+                              "account. Continue?"):
                 console.print("[yellow]Operation cancelled.[/yellow]")
                 return
 
@@ -153,15 +168,19 @@ def clean(ctx, services, all_regions, dry_run, force, confirm):
 @cli.command()
 @click.pass_context
 @click.option('--days', default=30, help='Number of days to analyze')
-@click.option('--output', type=click.Choice(['table', 'json']), default='table', help='Output format')
+@click.option('--output', type=click.Choice(['table', 'json']),
+              default='table', help='Output format')
 def cost(ctx, days, output):
     """Analyze AWS costs and usage patterns."""
     try:
-        with console.status("[bold green]Initializing cost analyzer...", spinner="dots"):
-            account = AWSAccount(profile_name=ctx.obj['profile'], region=ctx.obj['region'])
+        with console.status("[bold green]Initializing cost analyzer...",
+                           spinner="dots"):
+            account = AWSAccount(profile_name=ctx.obj['profile'],
+                               region=ctx.obj['region'])
             enforcer = AWSFreeEnforcer(account)
 
-        console.print(f"[bold cyan]💰 Analyzing costs for the last {days} days...[/bold cyan]")
+        console.print(f"[bold cyan]💰 Analyzing costs for the last {days} days..."
+                      "[/bold cyan]")
 
         cost_analysis = enforcer.cost_analyzer.analyze_costs()
 
@@ -179,22 +198,27 @@ def cost(ctx, days, output):
 def status(ctx):
     """Show current AWS account status and health."""
     try:
-        with console.status("[bold green]Checking AWS account status...", spinner="dots"):
-            account = AWSAccount(profile_name=ctx.obj['profile'], region=ctx.obj['region'])
+        with console.status("[bold green]Checking AWS account status...",
+                           spinner="dots"):
+            account = AWSAccount(profile_name=ctx.obj['profile'],
+                               region=ctx.obj['region'])
             account_id = account.get_account_id()
 
         console.print(f"[bold green]✅ AWS Account: {account_id}[/bold green]")
         console.print(f"[bold blue]📍 Region: {account.region}[/bold blue]")
-        console.print(f"[bold cyan]🔧 Profile: {ctx.obj['profile'] or 'default'}[/bold cyan]")
+        console.print(f"[bold cyan]🔧 Profile: {ctx.obj['profile'] or 'default'}"
+                      "[/bold cyan]")
 
         # Quick resource count
         enforcer = AWSFreeEnforcer(account)
         analysis = enforcer.comprehensive_analysis(include_all_regions=False)
 
         total_resources = analysis.get('total_resources_found', 0)
-        risk_level = analysis.get('risk_assessment', {}).get('overall_risk', 'UNKNOWN')
+        risk_level = analysis.get('risk_assessment', {}).get('overall_risk',
+                                                           'UNKNOWN')
 
-        console.print(f"[bold magenta]📊 Total Resources: {total_resources}[/bold magenta]")
+        console.print(f"[bold magenta]📊 Total Resources: {total_resources}"
+                      "[/bold magenta]")
         console.print(f"[bold yellow]⚠️  Risk Level: {risk_level}[/bold yellow]")
 
     except Exception as e:
@@ -210,7 +234,7 @@ def backup(ctx, backup_dir, services):
     try:
         with console.status("[bold green]Initializing backup...", spinner="dots"):
             account = AWSAccount(profile_name=ctx.obj['profile'], region=ctx.obj['region'])
-            enforcer = AWSFreeEnforcer(account)
+            _enforcer = AWSFreeEnforcer(account)
 
         console.print(f"[bold blue]💾 Creating backup in {backup_dir}...[/bold blue]")
 
